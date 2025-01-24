@@ -10,10 +10,10 @@
 
 - Light Mode
 
-![Light Mode](/light.png)
+![preview img](/light.png)
 
 
 Dark Mode 
 
-![Dark Mode](/dark.png)
+![preview img](/dark.png)
 
