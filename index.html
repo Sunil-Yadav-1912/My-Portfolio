@@ -1175,61 +1175,50 @@
     <script src="assets/js/main.js"></script>
 
     <script>
-    fetch("config.json")
-      .then((response) => {
-        if (!response.ok) {
-          // If the config file is not found or can't be loaded
-          console.warn("Config file not found, using default values.");
-          return DEFAULT_ENV; // Use default values
-        }
-        return response.json();
-      })
-      .then((ENV) => {
-        // Initialize EmailJS with USER_ID
-        if (ENV.EMAILJS_USER_ID) {
-          emailjs.init(ENV.EMAILJS_USER_ID);
-        } else {
-          console.warn("EMAILJS_USER_ID is missing. EmailJS may not work correctly.");
-        }
-
-        document
-          .getElementById("send-button")
-          .addEventListener("click", function (event) {
-            event.preventDefault();
-
-            const name = document.getElementById("name").value.trim();
-            const email = document.getElementById("email").value.trim();
-            const project = document.getElementById("project").value.trim();
-            const message = document.getElementById("message").value.trim();
-
-            if (!name || !email || !message) {
-              alert("Please fill in all required fields.");
-              return;
-            }
-
-            emailjs
-              .send(ENV.EMAILJS_SERVICE_ID, ENV.EMAILJS_TEMPLATE_ID, {
-                name: name,
-                email: email,
-                project: project,
-                message: message,
-              })
-              .then((response) => {
-                alert("Message sent successfully!");
-                console.log("Email sent:", response);
-              })
-              .catch((error) => {
-                alert("Failed to send message. Please try again later.");
-                console.error("Email error:", error);
-              });
-          });
-      })
-      .catch((error) => {
-        console.error("Failed to load config:", error);
-        alert("Unable to load configuration. Please try again later.");
-      });
-
-    </script>
+      // Initialize EmailJS with USER_ID from environment variables
+      const serviceID = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+      const templateID = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+      const userID = process.env.NEXT_PUBLIC_EMAILJS_USER_ID;
+    
+      if (userID) {
+        emailjs.init(userID);
+      } else {
+        console.warn("EMAILJS_USER_ID is missing. EmailJS may not work correctly.");
+      }
+    
+      document
+        .getElementById("send-button")
+        .addEventListener("click", function (event) {
+          event.preventDefault();
+    
+          const name = document.getElementById("name").value.trim();
+          const email = document.getElementById("email").value.trim();
+          const project = document.getElementById("project").value.trim();
+          const message = document.getElementById("message").value.trim();
+    
+          if (!name || !email || !message) {
+            alert("Please fill in all required fields.");
+            return;
+          }
+    
+          // Send the email using the service, template, and user ID from environment variables
+          emailjs
+            .send(serviceID, templateID, {
+              name: name,
+              email: email,
+              project: project,
+              message: message,
+            })
+            .then((response) => {
+              alert("Message sent successfully!");
+              console.log("Email sent:", response);
+            })
+            .catch((error) => {
+              alert("Failed to send message. Please try again later.");
+              console.error("Email error:", error);
+            });
+        });
+    </script>    
       
   </body>
 </html>
