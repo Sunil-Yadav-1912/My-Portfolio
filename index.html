@@ -1166,15 +1166,7 @@
     </a>
 
     <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
-    </script>
-    <script type="text/javascript">
-    (function(){
-    emailjs.init({
-        publicKey: "-YEbvzF_YP9z8mqOp",
-    });
-    })();
-    </script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
     <!--==================== SWIPER JS ====================-->
     <script src="assets/js/swiper-bundle.min.js"></script>
@@ -1183,37 +1175,60 @@
     <script src="assets/js/main.js"></script>
 
     <script>
-    document.getElementById("send-button").addEventListener("click", function (event) {
-        event.preventDefault();
-      
-        // Get form values by ID
-        const name = document.getElementById("name").value.trim();
-        const email = document.getElementById("email").value.trim();
-        const project = document.getElementById("project").value.trim();
-        const message = document.getElementById("message").value.trim();
-      
-        // Validate the fields
-        if (!name || !email || !message) {
-          alert("Please fill in all required fields.");
-          return;
+    fetch("config.json")
+      .then((response) => {
+        if (!response.ok) {
+          // If the config file is not found or can't be loaded
+          console.warn("Config file not found, using default values.");
+          return DEFAULT_ENV; // Use default values
         }
-      
-        // Send email using EmailJS
-        emailjs.send("service_mz44589", "template_eapjwsk", {
-          name: name,
-          email: email,
-          project: project,
-          message: message,
-        })
-        .then((response) => {
-          alert("Message sent successfully!");
-          console.log("Email sent:", response);
-        })
-        .catch((error) => {
-          alert("Failed to send message. Please try again later.");
-          console.error("Email error:", error);
-        });
+        return response.json();
+      })
+      .then((ENV) => {
+        // Initialize EmailJS with USER_ID
+        if (ENV.EMAILJS_USER_ID) {
+          emailjs.init(ENV.EMAILJS_USER_ID);
+        } else {
+          console.warn("EMAILJS_USER_ID is missing. EmailJS may not work correctly.");
+        }
+
+        document
+          .getElementById("send-button")
+          .addEventListener("click", function (event) {
+            event.preventDefault();
+
+            const name = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const project = document.getElementById("project").value.trim();
+            const message = document.getElementById("message").value.trim();
+
+            if (!name || !email || !message) {
+              alert("Please fill in all required fields.");
+              return;
+            }
+
+            emailjs
+              .send(ENV.EMAILJS_SERVICE_ID, ENV.EMAILJS_TEMPLATE_ID, {
+                name: name,
+                email: email,
+                project: project,
+                message: message,
+              })
+              .then((response) => {
+                alert("Message sent successfully!");
+                console.log("Email sent:", response);
+              })
+              .catch((error) => {
+                alert("Failed to send message. Please try again later.");
+                console.error("Email error:", error);
+              });
+          });
+      })
+      .catch((error) => {
+        console.error("Failed to load config:", error);
+        alert("Unable to load configuration. Please try again later.");
       });
+
     </script>
       
   </body>
